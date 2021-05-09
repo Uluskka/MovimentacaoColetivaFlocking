@@ -9,6 +9,7 @@ public class Flock : MonoBehaviour
     //velociade do peixe
     public float speed;
     bool turning = false;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -21,25 +22,37 @@ public class Flock : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        Bounds b = new Bounds(myManager.transform.position, myManager.swinLimits * 2); //informa o limite que os peixes tem para continuar sua rota.
+    {   //informa o limite que os peixes tem para continuar sua rota.
+        Bounds b = new Bounds(myManager.transform.position, myManager.swinLimits * 2);
+        RaycastHit hit = new RaycastHit();
+        Vector3 direction = myManager.transform.position - transform.position;
+        
         if (!b.Contains(transform.position))
+
         {
             turning = true;
+            direction = myManager.transform.position - transform.position;
+
         }
-        else
+              else if (Physics.Raycast(transform.position, this.transform.forward * 50 , out hit))
         {
+            turning = true;
+            direction = Vector3.Reflect(this.transform.forward, hit.normal);
+        }
+
+        else 
+        {
+           
             turning = false;
         }
 
         if (turning)
         {
-            Vector3 direction = myManager.transform.position - transform.position;
-            transform.rotation = Quaternion.Slerp(transform.rotation,
-                Quaternion.LookRotation(direction), 
-                myManager.rotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.Slerp(transform.rotation, 
+                                                 Quaternion.LookRotation(direction), 
+                                                 myManager.rotationSpeed * Time.deltaTime);
         }
-        else
+        
         {
             if (Random.Range(0, 100) < 10)
                 speed = Random.Range(myManager.minSpeed, myManager.maxSpeed);
